@@ -44,10 +44,9 @@ To use it, simple run `npm run dev` on the command line
 And that's it.
 
 ## Project Status
-Project is a tutorial project and completed.
+This project is a tutorial project and completed.
 
 
 ## Acknowledgements
-Credit goes to .
 - This project was based on [this tutorial channel](https://www.youtube.com/channel/UCY0xL8V6NzzFcwzHCgB8orQ).
 - Many thanks to [Dapps university](https://github.com/dappuniversity).
