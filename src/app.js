@@ -1,6 +1,6 @@
 App = {
-    loading:false,
-    contracts:{},
+    loading: false,
+    contracts: {},
     load: async() => {
         // Load App
         await App.loadWeb3();
@@ -41,13 +41,14 @@ App = {
             console.log("Non-Ethereum browser detected. You should consider trying Metamask!");
         }
     },
-    loadAccount: async ()=>{
+    loadAccount: async() => {
         //App.account = web3.eth.accounts[0];
-        web3.eth.getAccounts().then((acc)=>{
+        web3.eth.getAccounts().then((acc) => {
             App.account = acc[0];
+            // web3.eth.defaultAccount = acc[0];
         })
     },
-    loadContract: async ()=>{
+    loadContract: async() => {
         // Create a javascript version of the smart contracts
         const todoList = await $.getJSON("TodoList.json");
         App.contracts.TodoList = TruffleContract(todoList);
@@ -57,29 +58,36 @@ App = {
         App.todoList = await App.contracts.TodoList.deployed();
     },
 
-    render: async ()=>{
+    render: async() => {
         // Prevent double render
         if (App.loading) return;
-        
+
         // Update Loading State
         App.setLoading(true);
 
         // Render Account
         $("#account").html(App.account);
-        
+
         // Render Task
         await App.renderTasks();
-        
+
         // Update Loading State
         App.setLoading(false);
     },
 
-    renderTasks:async() =>{
+    createTask: async() => {
+        App.setLoading(true);
+        const content = $('#newTask').val();
+        await App.todoList.createTask(content, {from:App.account});
+        window.location.reload();
+    },
+
+    renderTasks: async() => {
         // Load the total task count from the blockchain
         const taskCount = await App.todoList.taskCount();
         const $taskTemplate = $('.taskTemplate');
         // Render out each task with a new task template
-        for (var i=1; i <= taskCount; i++){
+        for (var i = 1; i <= taskCount; i++) {
             // i represent the id
             // Fetch task from blockchain
             const task = await App.todoList.tasks(i);
@@ -91,34 +99,33 @@ App = {
             const $newTaskTemplate = $taskTemplate.clone();
             $newTaskTemplate.find('.content').html(taskContent);
             $newTaskTemplate.find('input')
-                            .prop('name',taskId)
-                            .prop('checked', taskCompleted)
-                            // .on('click',App.toggleCompleted)
-            
+                .prop('name', taskId)
+                .prop('checked', taskCompleted)
+                // .on('click',App.toggleCompleted)
+
 
             // Put the task in the correct list
-            if(taskCompleted){
+            if (taskCompleted) {
                 $('#completedTaskList').append($newTaskTemplate);
-            }else{
+            } else {
                 $('#taskList').append($newTaskTemplate)
             }
 
             // Show task
-        $newTaskTemplate.show();
+            $newTaskTemplate.show();
         }
-        
+
 
     },
 
-    setLoading: (bool_val)=>{
+    setLoading: (bool_val) => {
         App.loading = bool_val;
         const loader = $("#loader");
         const content = $("#content");
-        if (bool_val){
+        if (bool_val) {
             loader.show();
             content.hide();
-        }
-        else{
+        } else {
             loader.hide();
             content.show();
         }
@@ -127,5 +134,5 @@ App = {
 
 
 $(function() {
-    $(window).on('load',() => App.load());
+    $(window).on('load', () => App.load());
 })
